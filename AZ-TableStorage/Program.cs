@@ -1,4 +1,10 @@
+using AZ_TableStorage.Models;
+using AZ_TableStorage.TableStorageService;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddTransient<ITableStorageServiceProvider, TableStorageServiceProvider>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -8,37 +14,47 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/GetEntityFromPersonTableStorage/{key}", async (ITableStorageServiceProvider tableStorageServiceProvider, string key) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    var result = await tableStorageServiceProvider.GetEntities(key);
+
+    return Results.Ok(result);
 })
-.WithName("GetWeatherForecast")
+.WithName("GetEntityFromPersonTableStorage")
+.WithOpenApi();
+
+app.MapGet("/UpdateEntityFromPersonTableStorage", () =>
+{
+
+    return "";
+})
+.WithName("UpdateEntityFromPersonTableStorage")
+.WithOpenApi();
+
+app.MapDelete("/DeleteEntityFromPersonTableStorage/{partitionKey}/{rowKey}", async (ITableStorageServiceProvider tableStorageServiceProvider, string partitionKey, string rowKey) =>
+{
+    await tableStorageServiceProvider.DeleteEntity(partitionKey, rowKey);
+
+    return Results.Ok("Item Is Deleted!");
+})
+.WithName("DeleteEntityFromPersonTableStorage")
+.WithOpenApi();
+
+app.MapPost("/PostEntityToPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, PersonEntity personEntity) =>
+{
+    var response = await tableStorageServiceProvider.AddEntity(personEntity);
+
+    return Results.Ok(response);
+})
+.WithName("PostEntityToPersonTableStorage")
 .WithOpenApi();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
