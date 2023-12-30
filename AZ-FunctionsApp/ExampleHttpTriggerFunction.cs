@@ -5,16 +5,16 @@ using Microsoft.Extensions.Logging;
 
 namespace AZ_FunctionsApp
 {
-    public class Function1
+    public class ExampleHttpTriggerFunction
     {
         private readonly ILogger _logger;
 
-        public Function1(ILoggerFactory loggerFactory)
+        public ExampleHttpTriggerFunction(ILoggerFactory loggerFactory)
         {
-            _logger = loggerFactory.CreateLogger<Function1>();
+            _logger = loggerFactory.CreateLogger<ExampleHttpTriggerFunction>();
         }
 
-        [Function("Function1")]
+        [Function("ExampleHttpTriggerFunction")]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
