@@ -1,0 +1,6 @@
+@AZ_BlobStorage_HostAddress = http://localhost:5249
+
+GET {{AZ_BlobStorage_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

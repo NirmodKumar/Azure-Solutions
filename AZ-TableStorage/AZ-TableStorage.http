@@ -1,0 +1,6 @@
+@AZ_TableStorage_HostAddress = http://localhost:5139
+
+GET {{AZ_TableStorage_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
