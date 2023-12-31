@@ -39,35 +39,32 @@ namespace AZ_TableStorage.TableStorageService
             var persionEntities = new List<PersonEntity>();
 
             // Using TableEntity from Azure.Data.Tables
-            Pageable<TableEntity> oDataQueryEntities = client.Query<TableEntity>(filter: TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey}"));
-            foreach (TableEntity entity in oDataQueryEntities)
-            {
-                Console.WriteLine($"TableEntity : {entity.GetString("PartitionKey")}:{entity.GetString("RowKey")}, {entity.GetString("FirstName")}, {entity.GetString("LastName")}");
+            //Pageable<TableEntity> oDataQueryEntities = client.Query<TableEntity>(filter: TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey}"));
+            //foreach (TableEntity entity in oDataQueryEntities)
+            //{
+            //    var persionEntity = new PersonEntity
+            //    {
+            //        Age = !string.IsNullOrEmpty(entity.GetString("Age")) ? Convert.ToInt32(entity.GetString("Age")) : 0,
+            //        Country = entity.GetString("Country"),
+            //        FirstName = entity.GetString("FirstName"),
+            //        LastName = entity.GetString("LastName"),
+            //        PartitionKey = entity.GetString("PartitionKey"),
+            //        RowKey = entity.GetString("RowKey"),
+            //        Timestamp = !string.IsNullOrEmpty(entity.GetString("Timestamp")) ? Convert.ToDateTime(entity.GetString("Timestamp")) : null
+            //    };
 
-                var persionEntity = new PersonEntity
-                {
-                    Age = !string.IsNullOrEmpty(entity.GetString("Age")) ? Convert.ToInt32(entity.GetString("Age")) : 0,
-                    Country = entity.GetString("Country"),
-                    ETag = !string.IsNullOrEmpty(entity.GetString("ETag")) ? JsonSerializer.Deserialize<ETag>(entity.GetString("ETag")) : new ETag(),
-                    FirstName = entity.GetString("FirstName"),
-                    LastName = entity.GetString("LastName"),
-                    PartitionKey = entity.GetString("PartitionKey"),
-                    RowKey = entity.GetString("RowKey"),
-                    Timestamp = !string.IsNullOrEmpty(entity.GetString("Timestamp")) ? Convert.ToDateTime(entity.GetString("Timestamp")) : null
-                };
+            //    persionEntities.Add(persionEntity);
+            //}
 
-                persionEntities.Add(persionEntity);
-            }
-
-            // Using custom entity
-            Pageable<PersonEntity> oDataQueryEntities2 = client.Query<PersonEntity>(filter: TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey}"));
-            foreach (PersonEntity entity in oDataQueryEntities2)
-            {
-                persionEntities.Add(entity);
-            }
+            //// Using custom entity
+            //Pageable<PersonEntity> oDataQueryEntities2 = client.Query<PersonEntity>(filter: TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey}"));
+            //foreach (PersonEntity entity in oDataQueryEntities2)
+            //{
+            //    persionEntities.Add(entity);
+            //}
 
             // Using LINQ
-            Pageable<PersonEntity> linqEntities = client.Query<PersonEntity>(customer => customer.PartitionKey == "User");
+            Pageable<PersonEntity> linqEntities = client.Query<PersonEntity>(customer => customer.PartitionKey == partitionKey);
             foreach (PersonEntity entity in linqEntities)
             {
                 persionEntities.Add(entity);

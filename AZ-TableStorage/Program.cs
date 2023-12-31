@@ -1,9 +1,11 @@
+using AutoMapper;
 using AZ_TableStorage.Models;
 using AZ_TableStorage.TableStorageService;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddTransient<ITableStorageServiceProvider, TableStorageServiceProvider>();
 
 // Add services to the container.
@@ -22,19 +24,20 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 
-app.MapGet("/GetEntityFromPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, [FromQuery] string key) =>
+app.MapGet("/GetEntityFromPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, IMapper mapper, [FromQuery] string key) =>
 {
     var result = await tableStorageServiceProvider.GetEntities(key);
 
-    return Results.Ok(result);
+    return Results.Ok(mapper.Map<List<PersonModel>>(result));
 })
 .WithName("GetEntityFromPersonTableStorage")
 .WithOpenApi();
 
-app.MapPut("/UpdateEntityFromPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, [FromQuery] string partitionKey, [FromQuery] string rowKey, [FromBody] PersonEntity personEntity) =>
+app.MapPut("/UpdateEntityFromPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, IMapper mapper, [FromQuery] string partitionKey,
+    [FromQuery] string rowKey, [FromBody] PersonModel personModel) =>
 {
-    var result = await tableStorageServiceProvider.UpdateEntity(personEntity, partitionKey, rowKey);
-    return Results.Ok(result);
+    var result = await tableStorageServiceProvider.UpdateEntity(mapper.Map<PersonEntity>(personModel), partitionKey, rowKey);
+    return Results.Ok(mapper.Map<PersonModel>(result));
 })
 .WithName("UpdateEntityFromPersonTableStorage")
 .WithOpenApi();
@@ -48,11 +51,11 @@ app.MapDelete("/DeleteEntityFromPersonTableStorage", async (ITableStorageService
 .WithName("DeleteEntityFromPersonTableStorage")
 .WithOpenApi();
 
-app.MapPost("/PostEntityToPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, [FromBody] PersonEntity personEntity) =>
+app.MapPost("/PostEntityToPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, IMapper mapper, [FromBody] PersonModel personModel) =>
 {
-    var response = await tableStorageServiceProvider.AddEntity(personEntity);
+    var result = await tableStorageServiceProvider.AddEntity(mapper.Map<PersonEntity>(personModel));
 
-    return Results.Ok(response);
+    return Results.Ok(mapper.Map<PersonModel>(result));
 })
 .WithName("PostEntityToPersonTableStorage")
 .WithOpenApi();
