@@ -76,9 +76,19 @@ namespace AZ_TableStorage.TableStorageService
             return persionEntities;
         }
 
-        public Task<PersonEntity> UpdateEntity(PersonEntity entity, string partitionKey, string rowKey)
+        public async Task<PersonEntity> UpdateEntity(PersonEntity entity, string partitionKey, string rowKey)
         {
-            throw new NotImplementedException();
+            var client = new TableClient(_connectionString, _tableName);
+
+            client.CreateIfNotExists();
+
+            PersonEntity personEntity = client.GetEntity<PersonEntity>(partitionKey, rowKey);
+            personEntity.FirstName = entity.FirstName;
+            personEntity.LastName = entity.LastName;
+            personEntity.Age = entity.Age;
+            client.UpdateEntity(personEntity, ETag.All, TableUpdateMode.Replace);
+
+            return personEntity;
         }
     }
 }

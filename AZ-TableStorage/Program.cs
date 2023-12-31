@@ -1,5 +1,6 @@
 using AZ_TableStorage.Models;
 using AZ_TableStorage.TableStorageService;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,7 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 
-app.MapGet("/GetEntityFromPersonTableStorage/{key}", async (ITableStorageServiceProvider tableStorageServiceProvider, string key) =>
+app.MapGet("/GetEntityFromPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, [FromQuery] string key) =>
 {
     var result = await tableStorageServiceProvider.GetEntities(key);
 
@@ -30,15 +31,15 @@ app.MapGet("/GetEntityFromPersonTableStorage/{key}", async (ITableStorageService
 .WithName("GetEntityFromPersonTableStorage")
 .WithOpenApi();
 
-app.MapGet("/UpdateEntityFromPersonTableStorage", () =>
+app.MapPut("/UpdateEntityFromPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, [FromQuery] string partitionKey, [FromQuery] string rowKey, [FromBody] PersonEntity personEntity) =>
 {
-
-    return "";
+    var result = await tableStorageServiceProvider.UpdateEntity(personEntity, partitionKey, rowKey);
+    return Results.Ok(result);
 })
 .WithName("UpdateEntityFromPersonTableStorage")
 .WithOpenApi();
 
-app.MapDelete("/DeleteEntityFromPersonTableStorage/{partitionKey}/{rowKey}", async (ITableStorageServiceProvider tableStorageServiceProvider, string partitionKey, string rowKey) =>
+app.MapDelete("/DeleteEntityFromPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, [FromQuery] string partitionKey, [FromQuery] string rowKey) =>
 {
     await tableStorageServiceProvider.DeleteEntity(partitionKey, rowKey);
 
@@ -47,7 +48,7 @@ app.MapDelete("/DeleteEntityFromPersonTableStorage/{partitionKey}/{rowKey}", asy
 .WithName("DeleteEntityFromPersonTableStorage")
 .WithOpenApi();
 
-app.MapPost("/PostEntityToPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, PersonEntity personEntity) =>
+app.MapPost("/PostEntityToPersonTableStorage", async (ITableStorageServiceProvider tableStorageServiceProvider, [FromBody] PersonEntity personEntity) =>
 {
     var response = await tableStorageServiceProvider.AddEntity(personEntity);
 
