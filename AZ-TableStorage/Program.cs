@@ -1,6 +1,5 @@
 using AZ_TableStorage.Models;
 using AZ_TableStorage.TableStorageService;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
